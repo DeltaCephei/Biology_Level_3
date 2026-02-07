@@ -1,0 +1,336 @@
+/* ==========================================================================
+   Animations — Scroll-driven animations and micro-interactions
+   Level 3 NCEA Biology Course Platform
+
+   Uses modern CSS scroll-driven animations where supported,
+   with graceful fallbacks for older browsers.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Keyframes
+   -------------------------------------------------------------------------- */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes progressFill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes subtlePulse {
+  0%, 100% {
+    box-shadow: 0 0 12px var(--accent-glow);
+  }
+  50% {
+    box-shadow: 0 0 24px var(--accent-glow), 0 0 48px rgba(0, 255, 136, 0.15);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Scroll-Driven Animations (Modern Browsers)
+   Uses animation-timeline: view() — elements animate as they enter viewport
+   -------------------------------------------------------------------------- */
+
+@supports (animation-timeline: view()) {
+
+  /* Fade in and slide up on scroll */
+  .fade-in-up {
+    animation: fadeInUp linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 100%;
+  }
+
+  /* Scale from 0.9 to 1 on scroll */
+  .scale-in {
+    animation: scaleIn linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 100%;
+  }
+
+  /* Stagger children — each child uses a --stagger-index custom property
+     set via inline style or JS (e.g. style="--stagger-index: 0") */
+  .stagger-in > * {
+    animation: fadeInUp linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 100%;
+    animation-delay: calc(var(--stagger-index, 0) * 80ms);
+  }
+
+  /* Progress bar fills on viewport entry */
+  .progress-bar-animated {
+    transform-origin: left center;
+    animation: progressFill linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 80%;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Fallback — Intersection Observer / No Scroll-Driven Support
+   Elements are visible immediately; JS can add .is-visible to trigger
+   traditional animations as a progressive enhancement.
+   -------------------------------------------------------------------------- */
+
+@supports not (animation-timeline: view()) {
+
+  /* By default, show elements normally — no content hidden */
+  .fade-in-up,
+  .scale-in,
+  .stagger-in > * {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* If JS adds .animate-on-scroll, elements start hidden and animate
+     when .is-visible is added via IntersectionObserver */
+  .animate-on-scroll.fade-in-up {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 500ms ease,
+      transform 500ms ease;
+  }
+
+  .animate-on-scroll.fade-in-up.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .animate-on-scroll.scale-in {
+    opacity: 0;
+    transform: scale(0.9);
+    transition:
+      opacity 500ms ease,
+      transform 500ms ease;
+  }
+
+  .animate-on-scroll.scale-in.is-visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .animate-on-scroll.stagger-in > * {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 500ms ease,
+      transform 500ms ease;
+    transition-delay: calc(var(--stagger-index, 0) * 80ms);
+  }
+
+  .animate-on-scroll.stagger-in.is-visible > * {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Progress bar — animate when visible */
+  .progress-bar-animated {
+    transform-origin: left center;
+    transform: scaleX(0);
+    transition: transform 800ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .progress-bar-animated.is-visible {
+    transform: scaleX(1);
+  }
+}
+
+/* ==========================================================================
+   Card Hover Effects
+   ========================================================================== */
+
+.card-hover {
+  transition:
+    transform var(--transition-base),
+    box-shadow var(--transition-base);
+  will-change: transform;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.card-hover:active {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Card with accent border glow on hover */
+.card-hover-glow {
+  transition:
+    transform var(--transition-base),
+    box-shadow var(--transition-base),
+    border-color var(--transition-base);
+  will-change: transform;
+  border: 1px solid var(--border-subtle);
+}
+
+.card-hover-glow:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg), 0 0 24px var(--accent-glow);
+  border-color: var(--accent-muted);
+}
+
+/* ==========================================================================
+   Button Hover Effects
+   ========================================================================== */
+
+.btn-hover {
+  transition:
+    transform var(--transition-fast),
+    filter var(--transition-fast),
+    box-shadow var(--transition-fast);
+  will-change: transform;
+}
+
+.btn-hover:hover {
+  transform: scale(1.02);
+  filter: brightness(1.1);
+}
+
+.btn-hover:active {
+  transform: scale(0.98);
+  filter: brightness(0.95);
+}
+
+/* Primary button with glow on hover */
+.btn-hover-glow:hover {
+  transform: scale(1.02);
+  filter: brightness(1.1);
+  box-shadow: var(--shadow-glow);
+}
+
+/* ==========================================================================
+   Glow Utility
+   Subtle bioluminescent glow using the accent green
+   ========================================================================== */
+
+.glow {
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.glow-strong {
+  box-shadow:
+    0 0 12px var(--accent-glow),
+    0 0 36px rgba(0, 255, 136, 0.15);
+}
+
+.glow-pulse {
+  animation: subtlePulse 3s ease-in-out infinite;
+}
+
+/* Text glow — for headings or emphasis */
+.text-glow {
+  text-shadow:
+    0 0 8px var(--accent-glow),
+    0 0 24px rgba(0, 255, 136, 0.1);
+}
+
+/* ==========================================================================
+   Loading / Skeleton States
+   ========================================================================== */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--surface-2) 25%,
+    var(--surface-3) 50%,
+    var(--surface-2) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+  border-radius: var(--radius-md);
+}
+
+/* ==========================================================================
+   Standard-Specific Colour Glow Variants
+   Apply to cards or elements associated with a particular NCEA standard
+   ========================================================================== */
+
+.glow-standard-1 {
+  box-shadow: 0 0 16px rgba(0, 255, 136, 0.3);
+}
+
+.glow-standard-2 {
+  box-shadow: 0 0 16px rgba(125, 249, 255, 0.3);
+}
+
+.glow-standard-3 {
+  box-shadow: 0 0 16px rgba(255, 110, 199, 0.3);
+}
+
+.glow-standard-4 {
+  box-shadow: 0 0 16px rgba(108, 92, 231, 0.3);
+}
+
+.glow-standard-5 {
+  box-shadow: 0 0 16px rgba(116, 185, 255, 0.3);
+}
+
+/* ==========================================================================
+   Reduced Motion Override
+   Respects user preferences — disables all decorative animations
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in-up,
+  .scale-in,
+  .stagger-in > *,
+  .progress-bar-animated {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .card-hover:hover,
+  .card-hover-glow:hover {
+    transform: none;
+  }
+
+  .btn-hover:hover {
+    transform: none;
+  }
+
+  .glow-pulse {
+    animation: none !important;
+  }
+
+  .skeleton {
+    animation: none !important;
+  }
+}

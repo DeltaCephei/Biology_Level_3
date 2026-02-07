@@ -1,0 +1,353 @@
+---
+/**
+ * BaseLayout.astro — Main layout wrapper for all pages.
+ *
+ * Provides the HTML shell, sticky header with navigation,
+ * theme toggle (dark/light), footer, and global stylesheet imports.
+ * Every page on the site should use this layout.
+ */
+
+import { ViewTransitions } from 'astro:transitions';
+
+/* Global stylesheets — imported here so Astro bundles them at build time */
+import '../styles/global.css';
+import '../styles/theme.css';
+import '../styles/animations.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Level 3 Biology — Pursue Learning',
+  description = 'Week-by-week Level 3 NCEA Biology course companion',
+} = Astro.props;
+
+/* Determine active nav link from the current URL path */
+const currentPath = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="en-NZ" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+
+    <!-- Google Fonts — Space Grotesk (display) + Inter (body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Astro View Transitions for smooth page navigation -->
+    <ViewTransitions />
+  </head>
+
+  <body>
+    <!-- ============================
+         Sticky site header + nav
+         ============================ -->
+    <header class="site-header">
+      <div class="header-inner">
+        <!-- Site title / logo (display font) -->
+        <a href="/" class="site-title" transition:persist>
+          <span class="title-accent">Level 3</span> Biology
+        </a>
+
+        <!-- Primary navigation -->
+        <nav class="site-nav" aria-label="Primary navigation">
+          <a href="/" class:list={['nav-link', { active: currentPath === '/' }]}>
+            Home
+          </a>
+          <a
+            href="/flashcards"
+            class:list={['nav-link', { active: currentPath.startsWith('/flashcards') }]}
+          >
+            Flashcards
+          </a>
+          <a
+            href="/quiz"
+            class:list={['nav-link', { active: currentPath.startsWith('/quiz') }]}
+          >
+            Quiz
+          </a>
+          <a
+            href="/braindump"
+            class:list={['nav-link', { active: currentPath.startsWith('/braindump') }]}
+          >
+            Brain Dump
+          </a>
+          <a
+            href="/progress"
+            class:list={['nav-link', { active: currentPath.startsWith('/progress') }]}
+          >
+            Progress
+          </a>
+        </nav>
+
+        <!-- Theme toggle (sun/moon) -->
+        <button
+          class="theme-toggle"
+          id="theme-toggle"
+          type="button"
+          aria-label="Toggle colour theme"
+          title="Toggle colour theme"
+        >
+          <!-- Sun icon (shown in dark mode — click to switch to light) -->
+          <svg
+            class="icon-sun"
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <!-- Moon icon (shown in light mode — click to switch to dark) -->
+          <svg
+            class="icon-moon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- ============================
+         Page content slot
+         ============================ -->
+    <main class="site-main">
+      <slot />
+    </main>
+
+    <!-- ============================
+         Footer
+         ============================ -->
+    <footer class="site-footer">
+      <p class="footer-brand">Pursue Learning Ltd &mdash; 2026</p>
+      <p class="footer-tagline">Built for NCEA Level 3 Biology</p>
+    </footer>
+
+    <!-- ============================
+         Theme toggle + active nav
+         ============================ -->
+    <script is:inline>
+      /**
+       * Theme toggle logic.
+       * Reads stored preference from localStorage ('bio-theme'),
+       * falls back to 'dark' (the design default), and applies
+       * the data-theme attribute on <html>.
+       */
+      (function () {
+        const STORAGE_KEY = 'bio-theme';
+        const root = document.documentElement;
+        const toggle = document.getElementById('theme-toggle');
+
+        /* Apply saved theme on load (before paint via is:inline) */
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored === 'light' || stored === 'dark') {
+          root.setAttribute('data-theme', stored);
+        }
+        /* If nothing stored, leave the default 'dark' from the HTML attribute */
+
+        /* Toggle on click */
+        if (toggle) {
+          toggle.addEventListener('click', function () {
+            const current = root.getAttribute('data-theme') || 'dark';
+            const next = current === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-theme', next);
+            localStorage.setItem(STORAGE_KEY, next);
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>
+
+<style>
+  /* =============================================
+     Header — sticky, translucent, with blur
+     ============================================= */
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--surface-1, rgba(15, 23, 42, 0.85));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--surface-2, rgba(255, 255, 255, 0.06));
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0.75rem 1.5rem;
+  }
+
+  /* Site title / logo */
+  .site-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--text-primary, #f1f5f9);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+    transition: opacity 0.2s ease;
+  }
+
+  .site-title:hover {
+    opacity: 0.85;
+  }
+
+  .title-accent {
+    color: var(--accent-green, #4ade80);
+  }
+
+  /* Navigation — horizontal flex */
+  .site-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.75rem;
+  }
+
+  .nav-link {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--text-secondary, #94a3b8);
+    text-decoration: none;
+    position: relative;
+    padding: 0.25rem 0;
+    transition: color 0.25s ease;
+  }
+
+  .nav-link:hover {
+    color: var(--text-primary, #f1f5f9);
+  }
+
+  /* Active state — accent green with underline indicator */
+  .nav-link.active {
+    color: var(--accent-green, #4ade80);
+  }
+
+  .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--accent-green, #4ade80);
+    border-radius: 1px;
+  }
+
+  /* Theme toggle button */
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: 8px;
+    color: var(--text-secondary, #94a3b8);
+    cursor: pointer;
+    transition: color 0.25s ease, background 0.25s ease;
+  }
+
+  .theme-toggle:hover {
+    color: var(--text-primary, #f1f5f9);
+    background: var(--surface-2, rgba(255, 255, 255, 0.06));
+  }
+
+  /*
+   * Icon visibility — show sun in dark mode, moon in light mode.
+   * The :global() wrapper targets the html[data-theme] attribute
+   * which lives outside this component's scoped styles.
+   */
+  :global([data-theme='dark']) .icon-sun {
+    display: block;
+  }
+  :global([data-theme='dark']) .icon-moon {
+    display: none;
+  }
+  :global([data-theme='light']) .icon-sun {
+    display: none;
+  }
+  :global([data-theme='light']) .icon-moon {
+    display: block;
+  }
+
+  /* =============================================
+     Main content area
+     ============================================= */
+  .site-main {
+    min-height: calc(100vh - 140px); /* Push footer down */
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* =============================================
+     Footer — centred, muted, top border
+     ============================================= */
+  .site-footer {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    border-top: 1px solid var(--surface-2, rgba(255, 255, 255, 0.06));
+    color: var(--text-muted, #64748b);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    line-height: 1.6;
+  }
+
+  .footer-brand {
+    margin: 0;
+  }
+
+  .footer-tagline {
+    margin: 0.25rem 0 0;
+    opacity: 0.7;
+  }
+</style>

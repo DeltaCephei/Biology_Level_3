@@ -1,0 +1,248 @@
+/* ==========================================================================
+   Theme — Dark / Light Toggle Support
+   Level 3 NCEA Biology Course Platform
+
+   Dark mode is the default (tokens defined in global.css :root).
+   Light mode is activated via [data-theme="light"] on <html> or <body>.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Theme Transition
+   Smooth colour shifts when toggling between dark and light modes.
+   Applied to all elements that reference surface/text/border tokens.
+   -------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  transition:
+    background-color 200ms ease,
+    color 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    outline-color 200ms ease;
+}
+
+/* Opt out of theme transitions for animations and transforms —
+   prevents janky movement when switching themes */
+[class*="fade-"],
+[class*="scale-"],
+[class*="stagger-"] {
+  transition:
+    background-color 200ms ease,
+    color 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+/* ==========================================================================
+   Dark Theme (Default)
+   Re-declared here for explicitness when [data-theme="dark"] is set.
+   These mirror the values in global.css :root.
+   ========================================================================== */
+:root,
+[data-theme="dark"] {
+  /* Surfaces */
+  --surface-0: #0a0e17;
+  --surface-1: #111827;
+  --surface-2: #1a2234;
+  --surface-3: #243049;
+
+  /* Text */
+  --text-primary: #f0f4f8;
+  --text-secondary: #94a3b8;
+  --text-muted: #4a5568;
+
+  /* Borders */
+  --border-subtle: rgba(148, 163, 184, 0.12);
+  --border-default: rgba(148, 163, 184, 0.2);
+  --border-strong: rgba(148, 163, 184, 0.35);
+
+  /* Accent — full saturation on dark backgrounds */
+  --accent: #00ff88;
+  --accent-hover: #39ff14;
+  --accent-muted: rgba(0, 255, 136, 0.15);
+  --accent-glow: rgba(0, 255, 136, 0.4);
+
+  /* Standard colours — vivid for dark mode */
+  --standard-1-colour: #00ff88;
+  --standard-2-colour: #7df9ff;
+  --standard-3-colour: #ff6ec7;
+  --standard-4-colour: #6c5ce7;
+  --standard-5-colour: #74b9ff;
+
+  /* Semantic */
+  --success: #00e676;
+  --warning: #ffd600;
+  --error: #ff5252;
+  --info: #74b9ff;
+
+  /* Shadows — darker, more opaque on dark backgrounds */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 20px var(--accent-glow);
+
+  /* Selection */
+  --selection-bg: rgba(0, 255, 136, 0.3);
+  --selection-text: var(--text-primary);
+
+  /* Scrollbar */
+  --scrollbar-track: var(--surface-1);
+  --scrollbar-thumb: var(--border-strong);
+
+  color-scheme: dark;
+}
+
+/* ==========================================================================
+   Light Theme
+   Activated by setting data-theme="light" on the root element.
+   Surfaces flip to warm off-whites; text goes dark.
+   Accent colours are adjusted for contrast on light backgrounds.
+   ========================================================================== */
+[data-theme="light"] {
+  /* Surfaces — warm, clean whites with a hint of blue */
+  --surface-0: #f8fafc;         /* Page background                        */
+  --surface-1: #ffffff;         /* Primary content area                   */
+  --surface-2: #f1f5f9;         /* Raised surfaces, sidebars              */
+  --surface-3: #e2e8f0;         /* Cards, modals                          */
+
+  /* Text — high-contrast dark tones */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+
+  /* Borders — subtler on light backgrounds */
+  --border-subtle: rgba(15, 23, 42, 0.06);
+  --border-default: rgba(15, 23, 42, 0.12);
+  --border-strong: rgba(15, 23, 42, 0.2);
+
+  /* Accent — darkened slightly for readability on white */
+  --accent: #00b85e;
+  --accent-hover: #00a352;
+  --accent-muted: rgba(0, 184, 94, 0.1);
+  --accent-glow: rgba(0, 184, 94, 0.25);
+
+  /* Standard colours — contrast-adjusted for light backgrounds */
+  --standard-1-colour: #00a35a;   /* Green, darker for readability        */
+  --standard-2-colour: #0891b2;   /* Teal/cyan, deepened                  */
+  --standard-3-colour: #db2777;   /* Pink, enriched                       */
+  --standard-4-colour: #6c5ce7;   /* Purple holds well on light           */
+  --standard-5-colour: #2563eb;   /* Blue, stronger                       */
+
+  /* Semantic — slightly darker for contrast */
+  --success: #16a34a;
+  --warning: #ca8a04;
+  --error: #dc2626;
+  --info: #2563eb;
+
+  /* Shadows — lighter, softer */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.12);
+  --shadow-glow: 0 0 20px var(--accent-glow);
+
+  /* Selection — tinted green on light */
+  --selection-bg: rgba(0, 184, 94, 0.2);
+  --selection-text: var(--text-primary);
+
+  /* Scrollbar */
+  --scrollbar-track: var(--surface-2);
+  --scrollbar-thumb: var(--border-strong);
+
+  color-scheme: light;
+}
+
+/* --------------------------------------------------------------------------
+   Light-mode selection overrides
+   -------------------------------------------------------------------------- */
+[data-theme="light"] ::selection {
+  background-color: var(--selection-bg);
+  color: var(--selection-text);
+}
+
+[data-theme="light"] ::-moz-selection {
+  background-color: var(--selection-bg);
+  color: var(--selection-text);
+}
+
+/* --------------------------------------------------------------------------
+   Light-mode scrollbar overrides (Chromium / WebKit)
+   -------------------------------------------------------------------------- */
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Light-mode code block adjustments
+   -------------------------------------------------------------------------- */
+[data-theme="light"] code {
+  background-color: var(--surface-2);
+  color: #7c3aed;
+}
+
+[data-theme="light"] pre {
+  background-color: var(--surface-2);
+  border-color: var(--border-default);
+}
+
+/* --------------------------------------------------------------------------
+   Respecting system preference
+   If JS hasn't set [data-theme], honour the OS-level preference.
+   -------------------------------------------------------------------------- */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    /* Surfaces */
+    --surface-0: #f8fafc;
+    --surface-1: #ffffff;
+    --surface-2: #f1f5f9;
+    --surface-3: #e2e8f0;
+
+    /* Text */
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+
+    /* Borders */
+    --border-subtle: rgba(15, 23, 42, 0.06);
+    --border-default: rgba(15, 23, 42, 0.12);
+    --border-strong: rgba(15, 23, 42, 0.2);
+
+    /* Accent */
+    --accent: #00b85e;
+    --accent-hover: #00a352;
+    --accent-muted: rgba(0, 184, 94, 0.1);
+    --accent-glow: rgba(0, 184, 94, 0.25);
+
+    /* Standards */
+    --standard-1-colour: #00a35a;
+    --standard-2-colour: #0891b2;
+    --standard-3-colour: #db2777;
+    --standard-4-colour: #6c5ce7;
+    --standard-5-colour: #2563eb;
+
+    /* Semantic */
+    --success: #16a34a;
+    --warning: #ca8a04;
+    --error: #dc2626;
+    --info: #2563eb;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.12);
+    --shadow-glow: 0 0 20px var(--accent-glow);
+
+    color-scheme: light;
+  }
+}

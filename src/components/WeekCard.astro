@@ -1,0 +1,137 @@
+---
+/* ==========================================================================
+   WeekCard.astro — Reusable bento grid card component
+   Used across the landing page and weekly views.
+   Renders as <a> when href is provided, <div> otherwise.
+   ========================================================================== */
+
+interface Props {
+  title: string;
+  subtitle?: string;
+  href?: string;
+  /** Controls the CSS grid span and internal padding */
+  size?: 'small' | 'medium' | 'large';
+  /** Optional left-border accent colour (CSS value) */
+  accentColour?: string;
+}
+
+const { title, subtitle, href, size = 'medium', accentColour } = Astro.props;
+
+/* Choose the wrapper element based on whether this card is a link */
+const Tag = href ? 'a' : 'div';
+
+/* Build the class list */
+const classList = ['week-card', `week-card--${size}`, 'fade-in-up'];
+---
+
+<Tag
+  class:list={classList}
+  href={href ?? undefined}
+  style={accentColour ? `--card-accent: ${accentColour};` : undefined}
+>
+  <div class="week-card__header">
+    <h3 class="week-card__title">{title}</h3>
+    {subtitle && <p class="week-card__subtitle">{subtitle}</p>}
+  </div>
+
+  <div class="week-card__body">
+    <!-- Slot for arbitrary content inside the card -->
+    <slot />
+  </div>
+</Tag>
+
+<style>
+  /* --------------------------------------------------------------------------
+     Card Base
+     -------------------------------------------------------------------------- */
+  .week-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-5);
+    background: var(--surface-1);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    color: var(--text-primary);
+    transition:
+      transform var(--transition-base),
+      box-shadow var(--transition-base),
+      border-color var(--transition-base);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Accent left border when --card-accent is set */
+  .week-card[style*='--card-accent'] {
+    border-left: 3px solid var(--card-accent);
+  }
+
+  /* --------------------------------------------------------------------------
+     Hover Effects (only on linked cards)
+     -------------------------------------------------------------------------- */
+  a.week-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--border-default);
+  }
+
+  a.week-card:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* --------------------------------------------------------------------------
+     Size Variants
+     -------------------------------------------------------------------------- */
+  .week-card--small {
+    padding: var(--space-4);
+  }
+
+  .week-card--small .week-card__title {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+  }
+
+  .week-card--medium .week-card__title {
+    font-size: var(--text-lg);
+    font-weight: var(--weight-semibold);
+  }
+
+  .week-card--large {
+    padding: var(--space-6);
+  }
+
+  .week-card--large .week-card__title {
+    font-size: var(--text-2xl);
+    font-weight: var(--weight-bold);
+  }
+
+  /* --------------------------------------------------------------------------
+     Internal Elements
+     -------------------------------------------------------------------------- */
+  .week-card__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .week-card__title {
+    font-family: var(--font-display);
+    line-height: var(--leading-tight);
+    color: var(--text-primary);
+  }
+
+  .week-card__subtitle {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    line-height: var(--leading-normal);
+  }
+
+  .week-card__body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+</style>
